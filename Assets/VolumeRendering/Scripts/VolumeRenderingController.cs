@@ -49,9 +49,14 @@ namespace VolumeRendering
             volume.intensity = v;
         }
 
-        public void OnThreshold(float v)
+        public void OnMaxThreshold(float v)
         {
-            volume.threshold = v;
+            volume.maxThreshold = v;
+        }
+
+        public void OnMinThreshold(float v)
+        {
+            volume.minThreshold = v;
         }
 
     }

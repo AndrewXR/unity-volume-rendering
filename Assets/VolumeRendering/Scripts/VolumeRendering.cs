@@ -18,7 +18,8 @@ namespace VolumeRendering
         protected Material material;
 
         [SerializeField] Color color = Color.white;
-        [Range(0f, 1f)] public float threshold = 0.5f;
+        [Range(0f, 1f)] public float minThreshold = 0.5f;
+        [Range(0f, 1f)] public float maxThreshold = 0.5f;
         [Range(0.5f, 5f)] public float intensity = 1.5f;
         [Range(0f, 1f)] public float sliceXMin = 0.0f, sliceXMax = 1.0f;
         [Range(0f, 1f)] public float sliceYMin = 0.0f, sliceYMax = 1.0f;
@@ -36,7 +37,8 @@ namespace VolumeRendering
         protected void Update () {
             material.SetTexture("_Volume", volume);
             material.SetColor("_Color", color);
-            material.SetFloat("_Threshold", threshold);
+            material.SetFloat("_MinThreshold", minThreshold);
+            material.SetFloat("_MaxThreshold", maxThreshold);
             material.SetFloat("_Intensity", intensity);
             material.SetVector("_SliceMin", new Vector3(sliceXMin, sliceYMin, sliceZMin));
             material.SetVector("_SliceMax", new Vector3(sliceXMax, sliceYMax, sliceZMax));

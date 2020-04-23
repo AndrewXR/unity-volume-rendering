@@ -9,7 +9,7 @@
 
 half4 _Color;
 sampler3D _Volume;
-half _Intensity, _Threshold;
+half _Intensity, _MinThreshold, _MaxThreshold;
 half3 _SliceMin, _SliceMax;
 float4x4 _AxisRotationMatrix;
 
@@ -122,7 +122,9 @@ fixed4 frag(v2f i) : SV_Target
 
   float4 dst = float4(0, 0, 0, 0);
   float3 p = start;
+  float4 prevdst = float4(0, 0, 0, 0);
 
+  /*
   [unroll]
   for (int iter = 0; iter < ITERATIONS; iter++)
   {
@@ -136,7 +138,32 @@ fixed4 frag(v2f i) : SV_Target
     dst = (1.0 - dst.a) * src + dst;
     p += ds;
 
-    if (dst.a > _Threshold) break;
+	if (dst.a < _MinThreshold) continue;
+    if (dst.a > _MaxThreshold) break;
+  }
+  */
+
+  int iter = 0;
+  [unroll]
+  while (iter < ITERATIONS)
+  {
+
+	  iter++;
+
+	  if (prevdst.a < _MinThreshold) {
+		  float3 uv = get_uv(p);
+		  float v = sample_volume(uv, p);
+		  float4 src = float4(v, v, v, v);
+		  src.a *= 0.5;
+		  src.rgb *= src.a;
+
+		  // blend
+		  dst = (1.0 - dst.a) * src + dst;
+		  p += ds;
+		  prevdst = dst;
+	  }
+
+	  if (dst.a > _MaxThreshold) break;
   }
 
   return saturate(dst) * _Color;
