@@ -18,8 +18,8 @@ namespace VolumeRendering
         protected Material material;
 
         [SerializeField] Color color = Color.white;
-        [Range(0f, 1f)] public float minThreshold = 0.5f;
-        [Range(0f, 1f)] public float maxThreshold = 0.5f;
+        [Range(0f, 1f)] public float minThreshold = 0.2f;
+        [Range(0f, 1f)] public float maxThreshold = 0.7f;
         [Range(0.5f, 5f)] public float intensity = 1.5f;
         [Range(0f, 1f)] public float sliceXMin = 0.0f, sliceXMax = 1.0f;
         [Range(0f, 1f)] public float sliceYMin = 0.0f, sliceYMax = 1.0f;

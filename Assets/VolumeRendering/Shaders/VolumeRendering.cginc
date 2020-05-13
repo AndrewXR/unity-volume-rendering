@@ -4,7 +4,7 @@
 #include "UnityCG.cginc"
 
 #ifndef ITERATIONS
-#define ITERATIONS 100
+#define ITERATIONS 10
 #endif
 
 half4 _Color;
@@ -46,9 +46,14 @@ float3 get_uv(float3 p) {
   return (p + 0.5);
 }
 
-float sample_volume(float3 uv, float3 p)
+float sample_volume(float3 uv, float3 p, float4 dst)
 {
+	
   float v = tex3D(_Volume, uv).r * _Intensity;
+  if (dst.a > _MaxThreshold || dst.a + 5.0 < _MinThreshold)
+  {
+	  v = tex3D(_Volume, uv).r * 0.0;
+  }
 
   float3 axis = mul(_AxisRotationMatrix, float4(p, 0)).xyz;
   axis = get_uv(axis);
@@ -122,27 +127,35 @@ fixed4 frag(v2f i) : SV_Target
 
   float4 dst = float4(0, 0, 0, 0);
   float3 p = start;
-  float4 prevdst = float4(0, 0, 0, 0);
+  //float4 prevdst = float4(0, 0, 0, 0);
 
-  /*
   [unroll]
   for (int iter = 0; iter < ITERATIONS; iter++)
   {
-    float3 uv = get_uv(p);
-    float v = sample_volume(uv, p);
-    float4 src = float4(v, v, v, v);
-    src.a *= 0.5;
-    src.rgb *= src.a;
+	  
+	  float3 uv = get_uv(p);
+	  float v = sample_volume(uv, p, dst);
+	  float4 src = float4(v, v, v, v);
+	  src.a *= 0.5;
+	  src.rgb *= src.a;
 
-    // blend
-    dst = (1.0 - dst.a) * src + dst;
-    p += ds;
+	  if (dst.a > _MinThreshold)
+	  {
+		  dst = 0;
+		  p += ds;
+		  continue;
+	  }
 
-	if (dst.a < _MinThreshold) continue;
-    if (dst.a > _MaxThreshold) break;
+	  // blend
+	  //dst = (1.0 - dst.a) * src + dst;
+	  dst = (1.0 - dst.a) * src;
+	  p += ds;
+	  
+      if (dst.a > _MaxThreshold) break;
+
   }
-  */
 
+  /*
   int iter = 0;
   [unroll]
   while (iter < ITERATIONS)
@@ -165,6 +178,7 @@ fixed4 frag(v2f i) : SV_Target
 
 	  if (dst.a > _MaxThreshold) break;
   }
+  */
 
   return saturate(dst) * _Color;
 }
